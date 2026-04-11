@@ -6383,3 +6383,900 @@ Just say: \*\*“give model code”\*\*
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+database architecture
+
+
+===
+
+
+
+Perfect — now we’ll design a \*\*production-level database architecture using Supabase (PostgreSQL)\*\* tailored for your AI voice biomarker system.
+
+
+
+This is not just tables — this is \*\*how your entire product stores, scales, and queries data efficiently\*\*.
+
+
+
+\---
+
+
+
+\# 🧠 1. DATABASE ARCHITECTURE OVERVIEW
+
+
+
+```text
+
+Client
+
+&#x20; ↓
+
+FastAPI Backend
+
+&#x20; ↓
+
+Supabase (PostgreSQL + Storage)
+
+&#x20; ├── Relational Tables (structured data)
+
+&#x20; ├── JSONB (flexible features)
+
+&#x20; ├── Storage Bucket (audio files)
+
+```
+
+
+
+\---
+
+
+
+\# 🏗️ 2. CORE DESIGN PRINCIPLES
+
+
+
+\### ✅ Why PostgreSQL (Supabase)?
+
+
+
+\* Strong relationships (users ↔ logs)
+
+\* JSONB for ML features
+
+\* Powerful queries for analytics
+
+\* ACID compliance (important for healthcare)
+
+
+
+\---
+
+
+
+\### ✅ Key Strategy
+
+
+
+| Data Type   | Storage          |
+
+| ----------- | ---------------- |
+
+| User info   | Table            |
+
+| Voice logs  | Table            |
+
+| Features    | JSONB            |
+
+| Audio files | Supabase Storage |
+
+| Alerts      | Table            |
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🧩 3. DATABASE SCHEMA (MAIN TABLES)
+
+
+
+\---
+
+
+
+\# 🟢 1. USERS TABLE
+
+
+
+\## 🎯 Purpose
+
+
+
+Store user identity
+
+
+
+\---
+
+
+
+\## Schema
+
+
+
+```sql
+
+CREATE TABLE users (
+
+&#x20;   id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),
+
+&#x20;   name TEXT,
+
+&#x20;   email TEXT UNIQUE,
+
+&#x20;   age INT,
+
+&#x20;   gender TEXT,
+
+&#x20;   created\_at TIMESTAMP DEFAULT NOW()
+
+);
+
+```
+
+
+
+\---
+
+
+
+\## 🧠 Notes
+
+
+
+\* Use Supabase Auth → auto user management
+
+\* You can extend with profile fields
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🔵 2. VOICE\_LOGS TABLE (CORE TABLE)
+
+
+
+\## 🎯 Purpose
+
+
+
+Store every daily recording + AI result
+
+
+
+\---
+
+
+
+\## Schema
+
+
+
+```sql
+
+CREATE TABLE voice\_logs (
+
+&#x20;   id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),
+
+&#x20;   user\_id UUID REFERENCES users(id) ON DELETE CASCADE,
+
+&#x20;   
+
+&#x20;   audio\_url TEXT, -- Supabase storage link
+
+&#x20;   
+
+&#x20;   duration INT, -- seconds
+
+&#x20;   sample\_rate INT,
+
+&#x20;   
+
+&#x20;   features JSONB, -- MFCC, pitch, energy
+
+&#x20;   
+
+&#x20;   score FLOAT, -- 0–100
+
+&#x20;   risk\_level TEXT, -- low / medium / high
+
+&#x20;   prediction TEXT, -- respiratory / neurological
+
+&#x20;   
+
+&#x20;   confidence FLOAT,
+
+&#x20;   
+
+&#x20;   created\_at TIMESTAMP DEFAULT NOW()
+
+);
+
+```
+
+
+
+\---
+
+
+
+\## 🧠 Why JSONB for features?
+
+
+
+Because features look like:
+
+
+
+```json
+
+{
+
+&#x20; "mfcc": \[....],
+
+&#x20; "pitch\_mean": 120,
+
+&#x20; "energy": 0.03
+
+}
+
+```
+
+
+
+👉 Flexible + fast querying
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🟡 3. ALERTS TABLE
+
+
+
+\## 🎯 Purpose
+
+
+
+Store anomalies / warnings
+
+
+
+\---
+
+
+
+\## Schema
+
+
+
+```sql
+
+CREATE TABLE alerts (
+
+&#x20;   id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),
+
+&#x20;   user\_id UUID REFERENCES users(id) ON DELETE CASCADE,
+
+&#x20;   
+
+&#x20;   voice\_log\_id UUID REFERENCES voice\_logs(id),
+
+&#x20;   
+
+&#x20;   message TEXT,
+
+&#x20;   severity TEXT, -- low / medium / high
+
+&#x20;   
+
+&#x20;   created\_at TIMESTAMP DEFAULT NOW()
+
+);
+
+```
+
+
+
+\---
+
+
+
+\## 🧠 Example
+
+
+
+```json
+
+{
+
+&#x20; "message": "Breathing instability detected",
+
+&#x20; "severity": "high"
+
+}
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🟠 4. DAILY\_SUMMARY TABLE (IMPORTANT FOR PERFORMANCE)
+
+
+
+\## 🎯 Purpose
+
+
+
+Pre-compute trends (avoid heavy queries)
+
+
+
+\---
+
+
+
+\## Schema
+
+
+
+```sql
+
+CREATE TABLE daily\_summary (
+
+&#x20;   id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),
+
+&#x20;   user\_id UUID REFERENCES users(id),
+
+&#x20;   
+
+&#x20;   date DATE,
+
+&#x20;   
+
+&#x20;   avg\_score FLOAT,
+
+&#x20;   risk\_level TEXT,
+
+&#x20;   
+
+&#x20;   created\_at TIMESTAMP DEFAULT NOW(),
+
+&#x20;   
+
+&#x20;   UNIQUE(user\_id, date)
+
+);
+
+```
+
+
+
+\---
+
+
+
+\## 🧠 Why this matters
+
+
+
+👉 Instead of calculating trends every time
+
+👉 You store precomputed values → FAST dashboard
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🟣 5. MODEL\_METADATA TABLE (ADVANCED)
+
+
+
+\## 🎯 Purpose
+
+
+
+Track model versions
+
+
+
+\---
+
+
+
+```sql
+
+CREATE TABLE model\_metadata (
+
+&#x20;   id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),
+
+&#x20;   
+
+&#x20;   model\_version TEXT,
+
+&#x20;   accuracy FLOAT,
+
+&#x20;   
+
+&#x20;   created\_at TIMESTAMP DEFAULT NOW()
+
+);
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 📦 4. STORAGE ARCHITECTURE (AUDIO FILES)
+
+
+
+\---
+
+
+
+\## Supabase Storage Bucket
+
+
+
+\### Bucket Name:
+
+
+
+```text
+
+voice-recordings
+
+```
+
+
+
+\---
+
+
+
+\## File Structure
+
+
+
+```text
+
+voice-recordings/
+
+&#x20;  user\_id/
+
+&#x20;      2026-04-11.wav
+
+&#x20;      2026-04-12.wav
+
+```
+
+
+
+\---
+
+
+
+\## Store in DB:
+
+
+
+```text
+
+audio\_url → public URL
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🔗 5. RELATIONSHIP DIAGRAM
+
+
+
+```text
+
+users
+
+&#x20; ↓
+
+voice\_logs
+
+&#x20; ↓
+
+alerts
+
+
+
+users
+
+&#x20; ↓
+
+daily\_summary
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# ⚡ 6. INDEXING (VERY IMPORTANT)
+
+
+
+\---
+
+
+
+\## Add indexes
+
+
+
+```sql
+
+CREATE INDEX idx\_user\_logs ON voice\_logs(user\_id);
+
+CREATE INDEX idx\_created\_at ON voice\_logs(created\_at);
+
+CREATE INDEX idx\_alert\_user ON alerts(user\_id);
+
+```
+
+
+
+\---
+
+
+
+\## Why?
+
+
+
+👉 Faster queries for:
+
+
+
+\* Dashboard
+
+\* Trends
+
+\* Alerts
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🧠 7. QUERY PATTERNS (REAL USE)
+
+
+
+\---
+
+
+
+\## 📊 Get last 7 days data
+
+
+
+```sql
+
+SELECT \* FROM voice\_logs
+
+WHERE user\_id = '123'
+
+ORDER BY created\_at DESC
+
+LIMIT 7;
+
+```
+
+
+
+\---
+
+
+
+\## 📈 Get trend
+
+
+
+```sql
+
+SELECT date, avg\_score
+
+FROM daily\_summary
+
+WHERE user\_id = '123';
+
+```
+
+
+
+\---
+
+
+
+\## 🚨 Get alerts
+
+
+
+```sql
+
+SELECT \* FROM alerts
+
+WHERE user\_id = '123'
+
+ORDER BY created\_at DESC;
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🔐 8. SECURITY (SUPABASE RLS)
+
+
+
+\---
+
+
+
+\## Enable Row Level Security
+
+
+
+```sql
+
+ALTER TABLE voice\_logs ENABLE ROW LEVEL SECURITY;
+
+```
+
+
+
+\---
+
+
+
+\## Policy Example
+
+
+
+```sql
+
+CREATE POLICY "Users can access their data"
+
+ON voice\_logs
+
+FOR SELECT
+
+USING (auth.uid() = user\_id);
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🚀 9. DATA FLOW (WITH DB)
+
+
+
+```text
+
+User records audio
+
+&#x20;  ↓
+
+Upload to Supabase Storage
+
+&#x20;  ↓
+
+Backend processes audio
+
+&#x20;  ↓
+
+Features + ML result generated
+
+&#x20;  ↓
+
+Insert into voice\_logs
+
+&#x20;  ↓
+
+Update daily\_summary
+
+&#x20;  ↓
+
+Generate alerts (if needed)
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 💥 FINAL ARCHITECTURE SUMMARY
+
+
+
+You now have:
+
+
+
+```text
+
+PostgreSQL (Supabase)
+
+&#x20;  ├── users
+
+&#x20;  ├── voice\_logs
+
+&#x20;  ├── alerts
+
+&#x20;  ├── daily\_summary
+
+&#x20;  ├── model\_metadata
+
+&#x20;  └── storage (audio files)
+
+```
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🧠 PRO-LEVEL INSIGHT (THIS WINS HACKATHONS)
+
+
+
+Say this:
+
+
+
+> “We used PostgreSQL with JSONB to efficiently store high-dimensional audio features while maintaining relational integrity for user tracking and analytics.”
+
+
+
+\---
+
+
+
+\---
+
+
+
+\# 🚀 If you want next:
+
+
+
+I can give you:
+
+
+
+\* SQL file ready to paste into Supabase
+
+\* Backend integration (FastAPI + Supabase)
+
+\* Storage upload code
+
+\* Dashboard queries
+
+
+
+Just say: \*\*“give backend integration”\*\*
+
+
+
+
+
