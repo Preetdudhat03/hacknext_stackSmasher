@@ -1,0 +1,1143 @@
+/* ============================================
+   Voice Health Components — Shared Styles
+   Used by all components in /components/voice/
+   ============================================ */
+
+/* ——— Feature 1: Health Score Ring ——— */
+.scoreRingWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.scoreRingContainer {
+  position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.scoreRingSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.scoreArcBg {
+  transition: stroke 0.5s ease;
+}
+
+.scoreArc {
+  transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease;
+}
+
+.scoreCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.scoreNumber {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  transition: color 0.5s ease;
+}
+
+.scoreMax {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+}
+
+.scoreClassification {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: all 0.5s ease;
+}
+
+.scoreBreakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.breakdownItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  min-width: 80px;
+}
+
+.breakdownValue {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.breakdownLabel {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ——— Feature 2: Voice Baseline ——— */
+.baselineCard {
+  padding: 24px;
+}
+
+.baselineHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.baselineTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.baselineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.baselineCalibrated {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.baselineCalibrating {
+  background: rgba(251, 191, 36, 0.12);
+  color: #d97706;
+}
+
+.baselineProgress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.baselineDot {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(74, 108, 247, 0.15);
+  transition: background 0.3s ease;
+}
+
+.baselineDotFilled {
+  background: var(--accent-blue);
+}
+
+.baselineMetrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.baselineMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+}
+
+.baselineMetricLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.baselineMetricValue {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ——— Feature 3: Smart Feedback ——— */
+.feedbackPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feedbackCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.feedbackIcon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.feedbackContent {
+  flex: 1;
+}
+
+.feedbackMessage {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.feedbackSeverity {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.severityLow { background: #22c55e; }
+.severityMedium { background: #fbbf24; }
+.severityHigh { background: #ef4444; }
+
+/* ——— Feature 4: Voice Comparison ——— */
+.comparisonWrapper {
+  padding: 24px;
+}
+
+.comparisonTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comparisonGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.comparisonColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comparisonLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.comparisonChart {
+  width: 100%;
+  overflow: visible;
+}
+
+.comparisonMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compMetric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--glass-bg-subtle);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+}
+
+.compMetricName {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.compMetricValue {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.compDelta {
+  text-align: center;
+  padding: 12px;
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  margin-top: 16px;
+}
+
+.compDeltaValue {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  display: block;
+}
+
+.compDeltaLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ——— Feature 5: Emergency Alert ——— */
+.emergencyWrapper {
+  padding: 24px;
+}
+
+.emergencyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.emergencyTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alertToggle {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(148, 163, 184, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  padding: 0;
+}
+
+.alertToggleActive {
+  background: var(--accent-blue);
+}
+
+.alertToggleDot {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.alertToggleActive .alertToggleDot {
+  transform: translateX(22px);
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.contactInput {
+  padding: 10px 14px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.contactInput:focus {
+  border-color: var(--accent-blue);
+}
+
+.contactInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.saveContactBtn {
+  padding: 10px 20px;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.saveContactBtn:hover {
+  background: var(--accent-blue-dark);
+}
+
+.alertBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-lg);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.alertBannerIcon {
+  font-size: 1.5rem;
+}
+
+.alertBannerMsg {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #dc2626;
+}
+
+.alertSentNote {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* ——— Feature 6: Medication Tracker ——— */
+.medWrapper {
+  padding: 24px;
+}
+
+.medHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.medTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.addMedBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.addMedBtn:hover {
+  background: rgba(74, 108, 247, 0.1);
+}
+
+.medForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.medInput {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.medInput:focus {
+  border-color: var(--accent-blue);
+}
+
+.medDateInput {
+  padding: 8px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.medSubmitBtn {
+  padding: 8px 16px;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.medList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.medItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+}
+
+.medName {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.medDate {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.medDelete {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: #ef4444;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.medDelete:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.medInsight {
+  padding: 12px 16px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.medChartSvg {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* ——— Feature 7: Trend Prediction ——— */
+.trendWrapper {
+  padding: 24px;
+}
+
+.trendTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.trendSubtitle {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+
+.trendChartSvg {
+  width: 100%;
+  overflow: visible;
+}
+
+.trendLegend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.trendLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+.trendLegendLine {
+  width: 20px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.trendLegendDashed {
+  border-top: 2px dashed;
+  height: 0;
+}
+
+.trendMeta {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.trendMetaItem {
+  padding: 6px 14px;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ——— Feature 8: Emotion Detector ——— */
+.emotionWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.emotionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid;
+  animation: scaleIn 0.4s ease-out both;
+}
+
+.emotionBadgePrimary {
+  transform: scale(1.05);
+}
+
+.emotionIcon {
+  font-size: 1rem;
+}
+
+.emotionConfidence {
+  font-size: 0.65rem;
+  font-weight: 700;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+/* ——— Feature 9: Health Assistant ——— */
+.assistantToggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(74, 108, 247, 0.4);
+  z-index: 999;
+  transition: all 0.3s ease;
+  font-size: 1.4rem;
+}
+
+.assistantToggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(74, 108, 247, 0.5);
+}
+
+.assistantPanel {
+  position: fixed;
+  bottom: 92px;
+  right: 24px;
+  width: 380px;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.12);
+  z-index: 998;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.assistantHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.assistantClose {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.assistantHeaderTitle {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.assistantMessages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 360px;
+}
+
+.msgBubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.msgUser {
+  align-self: flex-end;
+  background: var(--accent-blue);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.msgBot {
+  align-self: flex-start;
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+.assistantInputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.assistantInput {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-primary);
+  font-size: 0.84rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.assistantInput:focus {
+  border-color: var(--accent-blue);
+}
+
+.assistantInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.assistantSendBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.assistantSendBtn:hover {
+  background: var(--accent-blue-dark);
+}
+
+.assistantVoiceBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.assistantVoiceBtn:hover {
+  background: rgba(74, 108, 247, 0.1);
+  color: var(--accent-blue);
+}
+
+.assistantVoiceActive {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ——— Feature 10: Doctor Dashboard ——— */
+.doctorPage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding-top: 80px;
+}
+
+.doctorContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px 48px;
+}
+
+.doctorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.doctorTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.doctorSubtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.roleToggle {
+  display: flex;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+}
+
+.roleBtn {
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: none;
+}
+
+.roleBtnActive {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.patientGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.patientCard {
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.patientCard:hover {
+  transform: translateY(-2px);
+}
+
+.patientTop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.patientAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  font-weight: 700;
+}
+
+.patientName {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.patientAge {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.patientScoreRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.patientScore {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.patientScoreLabel {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.patientSparkline {
+  overflow: visible;
+}
+
+.patientAlerts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.patientAlertTag {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.alertTagHigh {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.alertTagMedium {
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+}
+
+.alertTagLow {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.downloadBtn:hover {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+/* ——— Disclaimer Banner ——— */
+.disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: var(--radius-lg);
+  margin-top: 24px;
+}
+
+.disclaimerIcon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.disclaimerText {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* ——— Section titles (shared) ——— */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ——— Responsive ——— */
+@media (max-width: 768px) {
+  .comparisonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .assistantPanel {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 84px;
+  }
+
+  .patientGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .baselineMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .doctorContent {
+    padding: 0 16px 32px;
+  }
+}
