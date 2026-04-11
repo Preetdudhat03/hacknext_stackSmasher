@@ -2,8 +2,6 @@ from fastapi import APIRouter, File, UploadFile, HTTPException
 from typing import Dict, Any
 from ml.extractor import extract_features
 from ml.predictor import generate_insights
-# from core.config import settings
-# import supabase
 
 router = APIRouter()
 
@@ -13,26 +11,28 @@ async def analyze_voice(audio_file: UploadFile = File(...)):
          raise HTTPException(status_code=400, detail="Invalid audio file type")
     
     try:
+        print(f"📥 Received analysis request for: {audio_file.filename}")
         # Read the audio bytes
         audio_bytes = await audio_file.read()
+        print(f"📏 Audio size: {len(audio_bytes)} bytes")
         
         # 1. Feature Extraction
         features = extract_features(audio_bytes)
+        print(f"🧪 Extracted features: {features}")
         
         # 2. Mock Inference & Insight Generation
         analysis_result = generate_insights(features)
+        print(f"🧠 Analysis result: {analysis_result}")
         
-        # 3. Supposed Database Storing (Mocked for MVP if no creds)
-        # if settings.SUPABASE_URL and settings.SUPABASE_KEY:
-        #     client = supabase.create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-        #     client.table("voice_logs").insert({...}).execute()
-
-        # Combine into response
+        # Combine into response matching the frontend expectations
         return {
             "status": "success",
-            "features": features,
-            "analysis": analysis_result
+            "extracted_features": features,
+            "system_insights": analysis_result.get("system_insights"),
+            "health_score": analysis_result.get("health_score"),
+            "risk_level": analysis_result.get("risk_level")
         }
         
     except Exception as e:
+        print(f"🚨 Error in analyze_voice: {e}")
         raise HTTPException(status_code=500, detail=str(e))
