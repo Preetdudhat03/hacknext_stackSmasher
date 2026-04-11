@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
-import { supabase, ensureDemoUser } from '@/lib/supabase';
 import styles from './page.module.css';
 
 const TIMEFRAMES = ['7 Days', '30 Days', '90 Days'];
@@ -95,63 +94,12 @@ function TrendChart({ data, color, labels }) {
 
 export default function HistoryPage() {
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [entries, setEntries] = useState(DIARY_ENTRIES);
-  const [trendData, setTrendData] = useState(TREND_DATA);
   const [activeTimeframe, setActiveTimeframe] = useState('7 Days');
   const [activeBiomarker, setActiveBiomarker] = useState('tremor');
 
-  useEffect(() => { 
-    setMounted(true);
-    fetchHistory();
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  const fetchHistory = async () => {
-    try {
-      setLoading(true);
-      const userId = await ensureDemoUser();
-      
-      const { data: logs, error } = await supabase
-        .from('voice_logs')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(30);
-
-      if (error) throw error;
-
-      if (logs && logs.length > 0) {
-        // Map logs to history entries
-        const mappedEntries = logs.map(l => ({
-          date: new Date(l.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          score: l.health_score,
-          tremor: Math.round(l.system_insights?.neurological?.score || 0),
-          breath: Math.round(l.system_insights?.respiratory?.score || 0),
-          pitch: Math.round(l.extracted_features?.mean_pitch_proxy || 0),
-          speech: Math.round(l.system_insights?.emotional?.score || 0),
-          status: l.risk_level === 'low' ? 'good' : 'warning',
-          recorded: true
-        }));
-
-        setEntries(mappedEntries);
-
-        // Map logs to trend data
-        const reversedLogs = [...logs].reverse();
-        setTrendData({
-          tremor: { ...TREND_DATA.tremor, data: reversedLogs.map(l => Math.round(l.system_insights?.neurological?.score || 0)) },
-          breath: { ...TREND_DATA.breath, data: reversedLogs.map(l => Math.round(l.system_insights?.respiratory?.score || 0)) },
-          pitch: { ...TREND_DATA.pitch, data: reversedLogs.map(l => Math.round(l.extracted_features?.mean_pitch_proxy || 0)) },
-          speech: { ...TREND_DATA.speech, data: reversedLogs.map(l => Math.round(l.system_insights?.emotional?.score || 0)) },
-        });
-      }
-    } catch (err) {
-      console.error('Error fetching history:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const labels = entries.map(e => e.date).reverse();
+  const labels = DIARY_ENTRIES.map(e => e.date).reverse();
 
   return (
     <>
@@ -178,7 +126,7 @@ export default function HistoryPage() {
           <section className={`${styles.calendarSection} glass-panel`}>
             <h3 className={styles.sectionTitle}>Recording Calendar</h3>
             <div className={styles.calendarGrid}>
-              {entries.slice(0, 14).map((entry, i) => (
+              {DIARY_ENTRIES.map((entry, i) => (
                 <div
                   key={i}
                   className={`${styles.calendarDay} ${
@@ -231,7 +179,7 @@ export default function HistoryPage() {
           <section className={styles.entriesSection}>
             <h3 className={styles.sectionTitle}>Diary Entries</h3>
             <div className={styles.entriesList}>
-              {entries.map((entry, i) => (
+              {DIARY_ENTRIES.map((entry, i) => (
                 <div
                   key={i}
                   className={`${styles.entryCard} glass-panel`}

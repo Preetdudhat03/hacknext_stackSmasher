@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
-import { supabase, ensureDemoUser } from '@/lib/supabase';
 import styles from './page.module.css';
 
 const BIOMARKERS = [
@@ -102,13 +101,8 @@ function SparkLine({ data, color = '#4A6CF7', width = 120, height = 36 }) {
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [healthScore, setHealthScore] = useState(0);
-  const [biomarkers, setBiomarkers] = useState(BIOMARKERS);
-  const [weeklyTrend, setWeeklyTrend] = useState([0, 0, 0, 0, 0, 0, 0]);
-  const [streak, setStreak] = useState(1);
-  const [latestInsight, setLatestInsight] = useState('');
-
+  const healthScore = 78;
+  const streak = 12;
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -117,60 +111,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setMounted(true);
-    fetchDashboardData();
   }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const userId = await ensureDemoUser();
-      
-      const { data: logs, error } = await supabase
-        .from('voice_logs')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(7);
-
-      if (error) throw error;
-
-      if (logs && logs.length > 0) {
-        const latest = logs[0];
-        setHealthScore(latest.health_score || 0);
-        setLatestInsight(latest.system_insights?.neurological?.insight || 'Analysis complete.');
-        
-        // Map logs to biomarkers
-        const updatedBio = BIOMARKERS.map(bm => {
-          let val = bm.value;
-          let hist = bm.history;
-
-          if (bm.id === 'tremor') {
-            val = Math.round(latest.system_insights?.neurological?.score || (latest.extracted_features?.pitch_instability / 1000) || val);
-            hist = logs.map(l => Math.round(l.system_insights?.neurological?.score || (l.extracted_features?.pitch_instability / 1000) || 0)).reverse();
-          } else if (bm.id === 'breath') {
-            val = Math.round(latest.system_insights?.respiratory?.score || (latest.extracted_features?.breathiness_proxy * 1000) || val);
-            hist = logs.map(l => Math.round(l.system_insights?.respiratory?.score || (l.extracted_features?.breathiness_proxy * 1000) || 0)).reverse();
-          } else if (bm.id === 'pitch') {
-            val = Math.round(latest.extracted_features?.mean_pitch_proxy || val);
-            hist = logs.map(l => Math.round(l.extracted_features?.mean_pitch_proxy || 0)).reverse();
-          } else if (bm.id === 'speech') {
-            val = Math.round(latest.system_insights?.emotional?.score || val);
-            hist = logs.map(l => Math.round(l.system_insights?.emotional?.score || 0)).reverse();
-          }
-
-          return { ...bm, value: val, history: hist };
-        });
-
-        setBiomarkers(updatedBio);
-        setWeeklyTrend(logs.map(l => l.health_score).reverse());
-        setStreak(logs.length);
-      }
-    } catch (err) {
-      console.error('Dashboard fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const trendIcon = (trend) => {
     if (trend === 'up') return '↑';
@@ -278,7 +219,7 @@ export default function DashboardPage() {
           <section className={styles.biomarkers}>
             <h2 className={styles.sectionTitle}>Voice Biomarkers</h2>
             <div className={styles.bioGrid}>
-              {biomarkers.map((bm, i) => (
+              {BIOMARKERS.map((bm, i) => (
                 <div
                   key={bm.id}
                   className={`${styles.bioCard} glass-panel`}
@@ -301,7 +242,7 @@ export default function DashboardPage() {
                   <div className={styles.bioDesc}>{bm.desc}</div>
                   <div className={styles.bioChart}>
                     <SparkLine
-                      data={bm.history.length > 0 ? bm.history : [0, 0, 0, 0, 0, 0, 0]}
+                      data={bm.history}
                       color={statusColor(bm.status)}
                     />
                   </div>
@@ -314,19 +255,19 @@ export default function DashboardPage() {
           <div className={styles.bottomRow}>
             {/* Weekly Overview */}
             <div className={`${styles.weeklyCard} glass-panel`}>
-              <h3 className={styles.weeklyTitle}>Recent Progress</h3>
+              <h3 className={styles.weeklyTitle}>7-Day Trend</h3>
               <div className={styles.weeklyChart}>
-                {weeklyTrend.map((val, i) => (
+                {[72, 75, 74, 76, 73, 78, 78].map((val, i) => (
                   <div key={i} className={styles.weeklyBar}>
                     <div
                       className={styles.weeklyBarFill}
                       style={{
-                        height: `${val || 5}%`,
+                        height: `${val}%`,
                         background: `linear-gradient(to top, #4A6CF7, #6d8dff)`,
                         animationDelay: `${i * 0.08}s`,
                       }}
                     />
-                    <span className={styles.weeklyBarLabel}>{TREND_LABELS[i] || '—'}</span>
+                    <span className={styles.weeklyBarLabel}>{TREND_LABELS[i]}</span>
                   </div>
                 ))}
               </div>
@@ -357,16 +298,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Alert Banner */}
-          {latestInsight && healthScore < 85 && (
-            <div className={`${styles.alertBanner} glass-panel`}>
-              <span className={styles.alertIcon}>⚠️</span>
-              <div className={styles.alertText}>
-                <strong>Health Insight Detected</strong>
-                <p>{latestInsight}</p>
-              </div>
-              <button className={styles.alertDismiss} onClick={() => setLatestInsight('')}>Dismiss</button>
+          <div className={`${styles.alertBanner} glass-panel`}>
+            <span className={styles.alertIcon}>⚠️</span>
+            <div className={styles.alertText}>
+              <strong>Breathlessness slightly elevated</strong>
+              <p>Your breathlessness index has increased 17% over the past 3 days. Consider consulting your physician if symptoms persist.</p>
             </div>
-          )}
+            <button className={styles.alertDismiss}>Dismiss</button>
+          </div>
         </div>
       </div>
     </>
