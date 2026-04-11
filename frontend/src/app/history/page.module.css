@@ -1,0 +1,324 @@
+/* History Page Styles */
+
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding-top: 90px;
+  padding-bottom: 60px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.6s ease;
+}
+
+.mounted {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeInUp 0.5s ease both;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.timeframeToggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+}
+
+.timeframeBtn {
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all var(--transition-base);
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.timeframeActive {
+  background: var(--accent-blue);
+  color: white;
+  box-shadow: 0 2px 10px rgba(74, 108, 247, 0.25);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+/* Calendar Section */
+.calendarSection {
+  padding: 28px;
+  animation: fadeInUp 0.5s ease 0.1s both;
+}
+
+.calendarGrid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.calendarDay {
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  cursor: default;
+}
+
+.calendarRecorded {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.calendarMissed {
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.calendarDate {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.calendarDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.calendarRecorded .calendarDot {
+  background: #22c55e;
+}
+
+.calendarMissed .calendarDot {
+  background: #cbd5e1;
+}
+
+.calendarLegend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legendRecorded {
+  background: #22c55e;
+}
+
+.legendMissed {
+  background: #cbd5e1;
+}
+
+/* Trend Section */
+.trendSection {
+  padding: 28px;
+  animation: fadeInUp 0.5s ease 0.2s both;
+}
+
+.trendHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.biomarkerTabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.biomarkerTab {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: none;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.biomarkerTab:hover {
+  color: var(--text-secondary);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+.biomarkerTabActive {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: currentColor;
+}
+
+.trendChart {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.trendSvg {
+  width: 100%;
+  height: auto;
+  min-height: 160px;
+}
+
+/* Entries Section */
+.entriesSection {
+  animation: fadeInUp 0.5s ease 0.3s both;
+}
+
+.entriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.entryCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.entryDate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 48px;
+  flex-shrink: 0;
+}
+
+.entryDay {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.entryMonth {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.entryScore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 56px;
+  flex-shrink: 0;
+}
+
+.entryScoreNum {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent-blue);
+  line-height: 1;
+}
+
+.entryScoreLabel {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.entryMetrics {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.entryMissed {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content {
+    padding: 0 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .trendHeader {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .entryCard {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .entryMetrics {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .calendarDay {
+    width: 44px;
+  }
+}
