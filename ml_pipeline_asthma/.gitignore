@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+.env
+
+# Trained model files (large binary - regenerate via train.py)
+output/models/*.pkl
+
+# Recorded audio (personal/test files)
+recorded_voice_asthma.wav
+
+# Temp files
+*.tmp
+temp_*
+
+# Jupyter
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
