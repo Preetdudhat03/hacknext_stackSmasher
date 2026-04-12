@@ -4,63 +4,11 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import MedicationModal from '@/components/MedicationModal';
+import { supabase, ensureDemoUser } from '@/lib/supabase';
 import styles from './page.module.css';
 
-const BIOMARKERS = [
-  {
-    id: 'tremor',
-    label: 'Voice Tremor',
-    value: 23,
-    unit: '/100',
-    trend: 'down',
-    status: 'good',
-    icon: '〰️',
-    desc: 'Low tremor detected',
-    history: [30, 28, 25, 27, 24, 23, 23],
-  },
-  {
-    id: 'breath',
-    label: 'Breathlessness',
-    value: 41,
-    unit: '/100',
-    trend: 'up',
-    status: 'warning',
-    icon: '💨',
-    desc: 'Slightly elevated',
-    history: [35, 33, 36, 38, 39, 40, 41],
-  },
-  {
-    id: 'pitch',
-    label: 'Pitch Variation',
-    value: 67,
-    unit: 'Hz σ',
-    trend: 'stable',
-    status: 'good',
-    icon: '🎵',
-    desc: 'Normal range',
-    history: [65, 68, 66, 67, 69, 66, 67],
-  },
-  {
-    id: 'speech',
-    label: 'Speech Rate',
-    value: 142,
-    unit: 'wpm',
-    trend: 'stable',
-    status: 'good',
-    icon: '🗣️',
-    desc: 'Consistent pace',
-    history: [140, 143, 141, 142, 144, 141, 142],
-  },
-];
-
-const CONDITIONS = [
-  { id: 'asthma', label: 'Asthma', icon: '🫁', active: true },
-  { id: 'depression', label: 'Depression', icon: '🌊', active: true },
-  { id: 'parkinsons', label: "Parkinson's", icon: '🔬', active: false },
-];
-
 const TREND_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
 function SparkLine({ data, color = '#4A6CF7', width = 120, height = 36 }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -101,17 +49,170 @@ function SparkLine({ data, color = '#4A6CF7', width = 120, height = 36 }) {
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
-  const healthScore = 78;
-  const streak = 12;
+  const [loading, setLoading] = useState(true);
+  const [logs, setLogs] = useState([]);
+  
+  // Computed values
+  const [healthScore, setHealthScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [biomarkers, setBiomarkers] = useState([]);
+  const [conditions, setConditions] = useState([]);
+  const [weeklyTrend, setWeeklyTrend] = useState(Array(7).fill(0));
+  const [alert, setAlert] = useState(null);
+  
+  // New features
+  const [aiFeedback, setAiFeedback] = useState(null);
+  const [meds, setMeds] = useState([]);
+  const [isMedModalOpen, setIsMedModalOpen] = useState(false);
+  const [sosActive, setSosActive] = useState(false);
+
   const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
+    weekday: 'long', month: 'long', day: 'numeric',
   });
 
   useEffect(() => {
     setMounted(true);
+    fetchDashboardData();
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const userId = await ensureDemoUser();
+      const { data, error } = await supabase
+        .from('voice_logs')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true }); 
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setLogs(data);
+        computeDashboardMetrics(data);
+      } else {
+        // Empty state defaults
+        setBiomarkers([
+          { id: 'tremor', label: 'Voice Tremor', value: 0, unit: '/100', trend: 'stable', status: 'good', icon: '〰️', desc: 'No data', history: Array(7).fill(0) },
+          { id: 'breath', label: 'Breathlessness', value: 0, unit: '/100', trend: 'stable', status: 'good', icon: '💨', desc: '', history: Array(7).fill(0) },
+          { id: 'pitch', label: 'Pitch Variation', value: 0, unit: 'Hz σ', trend: 'stable', status: 'good', icon: '🎵', desc: '', history: Array(7).fill(0) }
+        ]);
+        setConditions([
+          { id: 'asthma', label: 'Asthma', icon: '🫁', active: false },
+          { id: 'depression', label: 'Depression', icon: '🌊', active: false }
+        ]);
+      }
+    } catch (err) {
+      console.error("Dashboard fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const computeDashboardMetrics = (records) => {
+    const latest = records[records.length - 1];
+    setHealthScore(latest.health_score || 0);
+
+    // Simplified streak (total records for MVP Demo)
+    setStreak(records.length); 
+
+    const tremorHist = records.map(r => r.extracted_features?.voice_tremor || 20);
+    const breathHist = records.map(r => r.extracted_features?.breathiness || 30);
+    const pitchHist = records.map(r => r.extracted_features?.pitch_variation || 50);
+    const healthHist = records.map(r => r.health_score || 0);
+
+    const pad = (arr) => {
+      const padded = [...arr];
+      while(padded.length < 7) padded.unshift(0);
+      return padded.slice(-7); 
+    };
+
+    const determineTrend = (arr) => {
+      if (arr.length < 2) return 'stable';
+      const last = arr[arr.length - 1];
+      const prev = arr[arr.length - 2];
+      if (last > prev + 2) return 'up';
+      if (last < prev - 2) return 'down';
+      return 'stable';
+    };
+
+    setBiomarkers([
+      {
+        id: 'tremor', label: 'Voice Tremor', 
+        value: tremorHist[tremorHist.length - 1], unit: '/100', 
+        trend: determineTrend(tremorHist), status: latest.system_insights?.neurological?.status || 'good', 
+        icon: '〰️', desc: 'Neuromuscular Proxy', history: pad(tremorHist)
+      },
+      {
+        id: 'breath', label: 'Breathlessness', 
+        value: breathHist[breathHist.length - 1], unit: '/100', 
+        trend: determineTrend(breathHist), status: latest.system_insights?.respiratory?.status || 'good', 
+        icon: '💨', desc: latest.system_insights?.respiratory?.insight || 'Normal breathing', history: pad(breathHist)
+      },
+      {
+        id: 'pitch', label: 'Pitch Variation', 
+        value: pitchHist[pitchHist.length - 1], unit: '/100', 
+        trend: determineTrend(pitchHist), status: 'good', 
+        icon: '🎵', desc: 'Average pitch elasticity', history: pad(pitchHist)
+      }
+    ]);
+
+    setWeeklyTrend(pad(healthHist));
+
+    const predictions = latest.system_insights?.predictions || {};
+    const hasAsthmaWarning = latest.system_insights?.respiratory?.status === 'warning' || predictions.asthma?.prediction === 'Asthma';
+    const hasDepWarning = latest.system_insights?.emotional?.status === 'warning' || predictions.depression?.prediction === 'Depression';
+    const hasParkinsonsWarning = latest.system_insights?.neurological?.status === 'warning' || predictions.parkinsons?.prediction === 'Parkinsons';
+
+    setConditions([
+      { id: 'asthma', label: 'Asthma Analysis', icon: '🫁', active: hasAsthmaWarning, severity: predictions.asthma?.severity },
+      { id: 'depression', label: 'Depression Analysis', icon: '🌊', active: hasDepWarning, severity: predictions.depression?.severity },
+      { id: 'parkinsons', label: 'Parkinson\'s Analysis', icon: '🧠', active: hasParkinsonsWarning, severity: predictions.parkinsons?.severity }
+    ]);
+
+    if (hasAsthmaWarning || hasDepWarning || hasParkinsonsWarning) {
+      let alertTitle = "Physiological patterns detected";
+      if (hasParkinsonsWarning) alertTitle = "Neurological patterns detected";
+      else if (hasAsthmaWarning) alertTitle = "Respiratory patterns detected";
+      else if (hasDepWarning) alertTitle = "Emotional energy patterns detected";
+      
+      setAlert({
+        title: alertTitle,
+        msg: `The AI system detected a high correlation (${Math.round(latest.health_score)}% stability) with specific vocal biomarkers. Detailed report is available in History.`
+      });
+    } else {
+      setAlert(null);
+    }
+
+    // Smart AI Feedback Engine (Refined with specific disease knowledge)
+    if (records.length >= 2) {
+      const prev = records[records.length - 2];
+      const cur = latest;
+      
+      let insights = [];
+      if (cur.health_score > prev.health_score + 5) insights.push("Impressive! Your vocal stability improved significantly today.");
+      else if (cur.health_score < prev.health_score - 5) insights.push("Vocal baseline is lower than usual. Monitor for fatigue or environmental triggers.");
+
+      if (hasAsthmaWarning) insights.push("⚠️ Higher friction in vocal onset detected. If you have an inhaler, please monitor your peak flow.");
+      if (hasDepWarning) insights.push("⚠️ Low vocal energy detected. Consider tracking your sleep and mood patterns alongside these recordings.");
+      if (hasParkinsonsWarning) insights.push("⚠️ Micro-tremors in vocal cord control detected. Daily recording is essential to track neurological stability.");
+      
+      // Correlation logic
+      if (hasAsthmaWarning && cur.extracted_features?.breathiness > 60) {
+        insights.push("💡 Breathiness is correlating with respiratory friction. This is a strong indicator of reduced lung airflow.");
+      }
+
+      setAiFeedback({
+        title: "Clinical AI Insights",
+        insights: insights.slice(0, 3) // Keep it concise
+      });
+    } else {
+      setAiFeedback({
+        title: "Welcome to SwaasCare",
+        insights: ["Record your voice daily to unlock deep longitudinal trends and disease-specific risk tracking."]
+      });
+    }
+  };
 
   const trendIcon = (trend) => {
     if (trend === 'up') return '↑';
@@ -150,6 +251,32 @@ export default function DashboardPage() {
               </div>
             </div>
           </motion.header>
+
+          {/* Zero Data Banner */}
+          {!loading && logs.length === 0 && (
+            <div className={`${styles.alertBanner} glass-panel`} style={{ marginBottom: '2rem', borderColor: '#4A6CF7', backgroundColor: 'rgba(74, 108, 247, 0.1)' }}>
+              <span className={styles.alertIcon}>👋</span>
+              <div className={styles.alertText}>
+                <strong>Welcome to SwaasCare</strong>
+                <p>You have no voice records yet. Click 'Record Voice Diary' on the right to start tracking your health.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Smart AI Feedback Engine Banner */}
+          {!loading && aiFeedback && (
+            <div className={`${styles.alertBanner} ${styles.feedbackEngine} glass-panel`} style={{ marginBottom: '2rem' }}>
+              <span className={`${styles.alertIcon} ${styles.feedbackIcon}`}>🤖</span>
+              <div className={`${styles.alertText} ${styles.feedbackInsights}`}>
+                <strong>{aiFeedback.title}</strong>
+                <ul>
+                  {aiFeedback.insights.map((insight, idx) => (
+                    <li key={idx}>{insight}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
 
           {/* Top row: Health Score + Quick Record */}
           <div className={styles.topRow}>
@@ -191,8 +318,10 @@ export default function DashboardPage() {
               </div>
               <div className={styles.scoreInfo}>
                 <h3 className={styles.scoreTitle}>Overall Health Score</h3>
-                <p className={styles.scoreDesc}>Based on your latest voice analysis</p>
-                <span className="badge badge-success">● Normal Range</span>
+                <p className={styles.scoreDesc}>
+                  {logs.length === 0 ? "Record your voice to generate your first score" : "Based on your latest voice analysis"}
+                </p>
+                {logs.length > 0 && <span className="badge badge-success">● Normal Range</span>}
               </div>
             </div>
 
@@ -219,7 +348,7 @@ export default function DashboardPage() {
           <section className={styles.biomarkers}>
             <h2 className={styles.sectionTitle}>Voice Biomarkers</h2>
             <div className={styles.bioGrid}>
-              {BIOMARKERS.map((bm, i) => (
+              {biomarkers.map((bm, i) => (
                 <div
                   key={bm.id}
                   className={`${styles.bioCard} glass-panel`}
@@ -257,7 +386,7 @@ export default function DashboardPage() {
             <div className={`${styles.weeklyCard} glass-panel`}>
               <h3 className={styles.weeklyTitle}>7-Day Trend</h3>
               <div className={styles.weeklyChart}>
-                {[72, 75, 74, 76, 73, 78, 78].map((val, i) => (
+                {weeklyTrend.map((val, i) => (
                   <div key={i} className={styles.weeklyBar}>
                     <div
                       className={styles.weeklyBarFill}
@@ -277,7 +406,7 @@ export default function DashboardPage() {
             <div className={`${styles.conditionsCard} glass-panel`}>
               <h3 className={styles.conditionsTitle}>Tracked Conditions</h3>
               <div className={styles.conditionsList}>
-                {CONDITIONS.map((c) => (
+                {conditions.map((c) => (
                   <div key={c.id} className={styles.conditionItem}>
                     <span className={styles.conditionIcon}>{c.icon}</span>
                     <span className={styles.conditionLabel}>{c.label}</span>
@@ -286,7 +415,7 @@ export default function DashboardPage() {
                         c.active ? styles.conditionActive : ''
                       }`}
                     >
-                      {c.active ? 'Active' : 'Inactive'}
+                      {c.active ? `Flagged (${c.severity}%)` : 'Normal'}
                     </span>
                   </div>
                 ))}
@@ -298,16 +427,66 @@ export default function DashboardPage() {
           </div>
 
           {/* Alert Banner */}
-          <div className={`${styles.alertBanner} glass-panel`}>
-            <span className={styles.alertIcon}>⚠️</span>
-            <div className={styles.alertText}>
-              <strong>Breathlessness slightly elevated</strong>
-              <p>Your breathlessness index has increased 17% over the past 3 days. Consider consulting your physician if symptoms persist.</p>
+          {alert && (
+            <div className={`${styles.alertBanner} glass-panel`}>
+              <span className={styles.alertIcon}>⚠️</span>
+              <div className={styles.alertText}>
+                <strong>{alert.title}</strong>
+                <p>{alert.msg}</p>
+              </div>
+              <button className={styles.alertDismiss} onClick={() => setAlert(null)}>Dismiss</button>
             </div>
-            <button className={styles.alertDismiss}>Dismiss</button>
+          )}
+
+          {/* Third Row: Tracker & Emergency */}
+          <div className={styles.thirdRow} style={{ marginTop: '24px' }}>
+            {/* Medication Tracker */}
+            <div className={`${styles.medCard} glass-panel`}>
+              <div className={styles.medHeader}>
+                <h3 className={styles.conditionsTitle} style={{marginBottom: 0}}>Medication Tracker</h3>
+                <button className={styles.addMedBtn} onClick={() => setIsMedModalOpen(true)}>+ Log Med</button>
+              </div>
+              <div className={styles.medList}>
+                {meds.length === 0 ? (
+                  <div className={styles.medEmpty}>No medications logged today.</div>
+                ) : meds.map(m => (
+                  <div key={m.id} className={styles.medItem}>
+                    <div className={styles.medInfo}>
+                      <span className={styles.medIcon}>💊</span>
+                      <div>
+                        <div className={styles.medName}>{m.name} {m.dosage && `(${m.dosage})`}</div>
+                        <div className={styles.medTime}>Taken at {m.time}</div>
+                      </div>
+                    </div>
+                    <span className={styles.medStatus}>Logged</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Emergency SOS */}
+            <div className={`${styles.sosCard} glass-panel ${healthScore > 0 && healthScore <= 60 ? styles.emergency : ''}`}>
+              <div className={styles.sosPulse} />
+              <button 
+                className={`${styles.sosBtn} ${healthScore > 0 && healthScore <= 60 ? styles.emergencyBtn : ''} ${sosActive ? styles.sosBtnActive : ''}`}
+                onClick={() => setSosActive(true)}
+              >
+                {sosActive ? "✅ Doctor Notified!" : "🚨 Alert Doctor / SOS"}
+              </button>
+              <p className={styles.sosDesc}>
+                {sosActive ? "An emergency SMS has been dispatched to your doctor with your voice biomarkers." : "Directly notify your physician if you feel symptoms worsening."}
+              </p>
+            </div>
           </div>
+
         </div>
       </div>
+      
+      <MedicationModal 
+        isOpen={isMedModalOpen} 
+        onClose={() => setIsMedModalOpen(false)} 
+        onAdd={(newMed) => setMeds(prev => [newMed, ...prev])} 
+      />
     </>
   );
 }

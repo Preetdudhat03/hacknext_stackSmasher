@@ -99,9 +99,11 @@ export default function HistoryPage() {
 
   useEffect(() => { setMounted(true); }, []);
 
-<<<<<<< Updated upstream:voice-biomaker-frontend/src/app/history/page.js
-  const labels = DIARY_ENTRIES.map(e => e.date).reverse();
-=======
+  const labels = logs.map(r => {
+    const d = new Date(r.created_at);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }).reverse();
+
   const fetchHistoryData = async () => {
     try {
       setLoading(true);
@@ -137,7 +139,6 @@ export default function HistoryPage() {
         setDiaryEntries(entries);
         
         const ascEntries = [...entries].reverse();
-        setLabels(ascEntries.map(e => e.date));
         
         setTrendData({
           tremor: { label: 'Voice Tremor', data: ascEntries.map(e => e.tremor), color: '#4A6CF7', unit: '/100' },
@@ -146,8 +147,7 @@ export default function HistoryPage() {
           depression: { label: 'Depression Risk', data: ascEntries.map(e => e.depression), color: '#ec4899', unit: '%' },
           parkinsons: { label: "Parkinson's Risk", data: ascEntries.map(e => e.parkinsons), color: '#8b5cf6', unit: '%' }
         });
-      }
- else {
+      } else {
         setDiaryEntries([]);
       }
     } catch (err) {
@@ -156,7 +156,6 @@ export default function HistoryPage() {
       setLoading(false);
     }
   };
->>>>>>> Stashed changes:frontend/src/app/history/page.js
 
   return (
     <>
