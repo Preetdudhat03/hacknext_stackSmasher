@@ -4,6 +4,18 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, Environment, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 
+<<<<<<< Updated upstream:voice-biomaker-frontend/src/components/HumanBody3D.js
+=======
+// Suppress known harmless THREE.js library warnings (deprecated Clock, shader precision)
+const _origWarn = console.warn;
+console.warn = (...args) => {
+  const msg = args.map(a => String(a)).join(' ');
+  const suppressedKeywords = ['THREE.Clock', 'X4122', 'THREE.THREE.Clock', 'WebGLProgram', 'accurate in double precision'];
+  if (suppressedKeywords.some(kw => msg.includes(kw))) return;
+  _origWarn.apply(console, args);
+};
+
+>>>>>>> Stashed changes:frontend/src/components/HumanBody3D.js
 /* ———————————————————————————————————————————————
    BODY MATERIAL — uses MeshPhysicalMaterial for
    reliable rendering (MeshTransmissionMaterial

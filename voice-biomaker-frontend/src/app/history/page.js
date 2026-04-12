@@ -99,7 +99,64 @@ export default function HistoryPage() {
 
   useEffect(() => { setMounted(true); }, []);
 
+<<<<<<< Updated upstream:voice-biomaker-frontend/src/app/history/page.js
   const labels = DIARY_ENTRIES.map(e => e.date).reverse();
+=======
+  const fetchHistoryData = async () => {
+    try {
+      setLoading(true);
+      const userId = await ensureDemoUser();
+      const { data, error } = await supabase
+        .from('voice_logs')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        const entries = data.map(r => {
+          const d = new Date(r.created_at);
+          const preds = r.system_insights?.predictions || {};
+          return {
+            date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            score: r.health_score || 0,
+            tremor: r.extracted_features?.voice_tremor || 20,
+            breath: r.extracted_features?.breathiness || 30,
+            pitch: r.extracted_features?.pitch_variation || 50,
+            speech: r.extracted_features?.speech_energy || 40,
+            // New disease metrics
+            asthma: preds.asthma?.severity || 0,
+            depression: preds.depression?.severity || 0,
+            parkinsons: preds.parkinsons?.severity || 0,
+            status: (r.system_insights?.respiratory?.status === 'warning' || r.system_insights?.neurological?.status === 'warning' || r.system_insights?.emotional?.status === 'warning') ? 'warning' : 'good',
+            recorded: true
+          };
+        });
+
+        setDiaryEntries(entries);
+        
+        const ascEntries = [...entries].reverse();
+        setLabels(ascEntries.map(e => e.date));
+        
+        setTrendData({
+          tremor: { label: 'Voice Tremor', data: ascEntries.map(e => e.tremor), color: '#4A6CF7', unit: '/100' },
+          breath: { label: 'Breathlessness', data: ascEntries.map(e => e.breath), color: '#fbbf24', unit: '/100' },
+          asthma: { label: 'Asthma Risk', data: ascEntries.map(e => e.asthma), color: '#ef4444', unit: '%' },
+          depression: { label: 'Depression Risk', data: ascEntries.map(e => e.depression), color: '#ec4899', unit: '%' },
+          parkinsons: { label: "Parkinson's Risk", data: ascEntries.map(e => e.parkinsons), color: '#8b5cf6', unit: '%' }
+        });
+      }
+ else {
+        setDiaryEntries([]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+>>>>>>> Stashed changes:frontend/src/app/history/page.js
 
   return (
     <>
