@@ -2,20 +2,19 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    const { audio_url } = await request.json();
+    const formData = await request.formData();
+    const audioFile = formData.get('audio_file');
+    const audioUrl = formData.get('audio_url');
     
-    if (!audio_url) {
-      return NextResponse.json({ error: 'Missing audio_url' }, { status: 400 });
-    }
+    console.log(`[PROXY] Redirecting request. File: ${audioFile ? 'YES' : 'NO'}, URL: ${audioUrl || 'NONE'}`);
 
-    console.log(`[PROXY] Redirecting request to Python backend: ${audio_url}`);
+    const backendFormData = new FormData();
+    if (audioFile) backendFormData.append('audio_file', audioFile);
+    if (audioUrl) backendFormData.append('audio_url', audioUrl);
 
-    const formData = new FormData();
-    formData.append('audio_url', audio_url);
-
-    const response = await fetch('http://127.0.0.1:8080/api/analyze', {
+    const response = await fetch('http://127.0.0.1:8000/api/analyze', {
       method: 'POST',
-      body: formData,
+      body: backendFormData,
     });
 
     if (!response.ok) {
@@ -25,7 +24,7 @@ export async function POST(request) {
     }
 
     const data = await response.json();
-    console.log(`[PROXY] Analysis successful for: ${audio_url}`);
+    console.log(`[PROXY] Analysis successful`);
     
     return NextResponse.json(data);
   } catch (error) {

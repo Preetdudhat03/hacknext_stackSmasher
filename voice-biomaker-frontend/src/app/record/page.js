@@ -67,7 +67,7 @@ export default function RecordPage() {
     // Diagnostic Health Check (Cache Buster & Connectivity Verifier)
     const checkBackend = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8080/health', { cache: 'no-store' });
+        const res = await fetch('http://127.0.0.1:8000/health', { cache: 'no-store' });
         if (res.ok) setBackendStatus('online');
         else setBackendStatus('offline');
       } catch (e) {
@@ -246,10 +246,12 @@ export default function RecordPage() {
       console.log(`[DEBUG] Supabase URL ready: ${publicUrl}`);
 
       console.log("[DEBUG] Phase: PINGING AI ENGINE (via Local API Bridge)");
+      const formData = new FormData();
+      formData.append('audio_file', blob, fileName);
+
       const response = await fetch('/api/proxy', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audio_url: publicUrl })
+        body: formData
       });
 
       console.log(`[DEBUG] AI Engine Response: ${response.status}`);

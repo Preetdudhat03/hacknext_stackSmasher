@@ -92,17 +92,25 @@ function TrendChart({ data, color, labels }) {
   );
 }
 
+import { supabase, ensureDemoUser } from '@/lib/supabase';
+
 export default function HistoryPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTimeframe, setActiveTimeframe] = useState('7 Days');
   const [activeBiomarker, setActiveBiomarker] = useState('tremor');
+  const [loading, setLoading] = useState(false);
+  const [diaryEntries, setDiaryEntries] = useState(DIARY_ENTRIES);
+  const [trendData, setTrendData] = useState(TREND_DATA);
+  const [logs, setLogs] = useState([]);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { 
+    setMounted(true); 
+    fetchHistoryData();
+  }, []);
 
-  const labels = logs.map(r => {
-    const d = new Date(r.created_at);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }).reverse();
+  const labels = diaryEntries.map(r => {
+    return r.date;
+  });
 
   const fetchHistoryData = async () => {
     try {
@@ -182,7 +190,7 @@ export default function HistoryPage() {
           <section className={`${styles.calendarSection} glass-panel`}>
             <h3 className={styles.sectionTitle}>Recording Calendar</h3>
             <div className={styles.calendarGrid}>
-              {DIARY_ENTRIES.map((entry, i) => (
+              {diaryEntries.map((entry, i) => (
                 <div
                   key={i}
                   className={`${styles.calendarDay} ${
@@ -223,11 +231,13 @@ export default function HistoryPage() {
               </div>
             </div>
             <div className={styles.trendChart}>
-              <TrendChart
-                data={TREND_DATA[activeBiomarker].data}
-                color={TREND_DATA[activeBiomarker].color}
-                labels={labels}
-              />
+              {trendData[activeBiomarker] && (
+                <TrendChart
+                  data={trendData[activeBiomarker].data}
+                  color={trendData[activeBiomarker].color}
+                  labels={labels}
+                />
+              )}
             </div>
           </section>
 
@@ -235,7 +245,7 @@ export default function HistoryPage() {
           <section className={styles.entriesSection}>
             <h3 className={styles.sectionTitle}>Diary Entries</h3>
             <div className={styles.entriesList}>
-              {DIARY_ENTRIES.map((entry, i) => (
+              {diaryEntries.map((entry, i) => (
                 <div
                   key={i}
                   className={`${styles.entryCard} glass-panel`}
