@@ -1,90 +1,25 @@
-# SwaasCare — Voice Biomarker ML Pipeline
+# SwaasCare — Multi-Disease Voice Biomarker Platform
 
-This is the **AI/ML module** for the SwaasCare Voice Biomarker Disease Tracking system, built for the hackathon. It classifies voice recordings as **Normal** or **Depression** using vocal acoustic features.
+This repository houses the Machine Learning pipelines, backend, and frontend code for the SwaasCare hackathon project.
 
-## Features Extracted
-- **MFCC** (20 coefficients) — captures timbre and vocal quality
-- **Pitch (F0)** — fundamental frequency variation
-- **RMS Energy** — loudness and vocal effort
-- **Zero Crossing Rate** — breathiness/noise detection
-- **Spectral Centroid & Bandwidth** — brightness and frequency spread
+## ML Pipelines
 
-## Model
-- **Algorithm:** Random Forest Classifier
-- **Accuracy:** 97.5% on 400 samples (200 Normal, 200 Depression)
-- **Train/Test Split:** 80/20
+We have developed multiple independent AI/ML pipelines for tracking different disease markers via voice.
 
-## Project Structure
-```
-ml_pipeline/
-├── requirements.txt          # All dependencies
-├── src/
-│   ├── feature_extractor.py  # Librosa-based acoustic feature extraction
-│   ├── data_loader.py        # Dataset traversal and preprocessing
-│   ├── model.py              # Model factory (RandomForest / LogisticRegression)
-│   ├── train.py              # Training + evaluation script
-│   └── predict.py            # Single-file inference pipeline
-├── api.py                    # FastAPI REST endpoint for backend integration
-├── demo.py                   # Gradio live microphone UI demo
-├── record_and_predict.py     # Terminal-based mic recorder + predictor
-└── output/
-    └── models/               # Saved model artifacts (generated after training)
-```
+- **[Depression Screening Module](./ml_pipeline_depression/)**: Classifies voice samples for depression markers using Random Forest with 97.5% accuracy.
+- **[Asthma Screening Module](./ml_pipeline_asthma/)**: Classifies voice samples for asthma indicators using a 100% accuracy model optimized with `librosa.yin`.
 
-## Quick Start
+Each module is fully containerized with its own:
+- Live Gradio Demo (`demo.py`)
+- FastAPI Backend Service (`api.py`)
+- Terminal Mic Recorder (`record_and_predict.py`)
+- Trained Classifier (`output/models/`)
 
-### 1. Install Dependencies
+### Setup Instructions
+To run either module, navigate into its specific directory and install its dependencies:
 ```bash
+cd ml_pipeline_asthma
 pip install -r requirements.txt
 ```
 
-### 2. Train the Model
-```bash
-cd ml_pipeline
-python -m src.train
-```
-
-### 3. Test With Your Voice (Terminal)
-```bash
-python record_and_predict.py
-```
-
-### 4. Launch Live Demo UI (Gradio)
-```bash
-python demo.py
-# Opens at http://127.0.0.1:7860
-```
-
-### 5. Start the Backend REST API (FastAPI)
-```bash
-python api.py
-# API available at http://localhost:8000/predict
-```
-
-## API Usage
-Send a POST request with an audio file:
-```bash
-curl -X POST http://localhost:8000/predict \
-  -F "file=@your_voice.wav"
-```
-Response:
-```json
-{"status": "success", "prediction": "Normal"}
-```
-
-## Dataset Structure Expected
-```
-Audio_Dataset/
-├── Normal/       (label 0)
-│   └── *.wav
-└── Depression/   (label 1)
-    ├── Stage1/*.wav
-    └── Stage2/*.wav
-```
-
-## Tech Stack
-- `librosa` — audio feature extraction
-- `scikit-learn` — ML models
-- `FastAPI` + `uvicorn` — REST API
-- `Gradio` — live demo UI
-- `sounddevice` — microphone recording
+*Note: Models require the proper dataset structures (as listed in their individual `README.md` files) to retrain (`train.py`), but you can run predictions immediately.*
