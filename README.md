@@ -22,4 +22,4 @@ cd ml_pipeline_asthma
 pip install -r requirements.txt
 ```
 
-*Note: Models require the proper dataset structures (as listed in their individual `README.md` files) to retrain (`train.py`), but you can run predictions immediately.*
+*Note: Models require the proper dataset structures (as listed in their individual `README.md` files) to retrain (`train.py`), but you can run predictions immediately..*
